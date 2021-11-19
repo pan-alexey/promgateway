@@ -3,6 +3,11 @@ import cluster from 'cluster';
 import { Counter, register } from 'prom-client';
 
 export function start(): void {
+  console.log(process.env.index);
+
+  setTimeout(()=>{
+    throw new Error();
+  }, 10000);
 
   const counter = new Counter({
     name: 'test_counter',
@@ -23,6 +28,6 @@ export function start(): void {
   });
 
   app.listen(4000, () => {
-    console.log(`Server started with worker ${process.pid}`);
+    // console.log(`Server started with worker ${process.pid}`);
   });
 }

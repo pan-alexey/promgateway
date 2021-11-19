@@ -45,17 +45,16 @@ var cluster_1 = __importDefault(require("cluster"));
 var prom_client_1 = require("prom-client");
 function start() {
     var _this = this;
-    var _a;
-    console.log("start worker_".concat((_a = cluster_1.default.worker) === null || _a === void 0 ? void 0 : _a.id));
+    console.log(process.env.index);
     setTimeout(function () {
         throw new Error();
-    }, 5000 + 1000 * Math.random());
-    var app = (0, express_1.default)();
+    }, 10000);
     var counter = new prom_client_1.Counter({
         name: 'test_counter',
         help: 'Example of a counter',
         labelNames: ['code'],
     });
+    var app = (0, express_1.default)();
     app.get('/', function (req, res) {
         var _a;
         counter.inc({ code: "worker_".concat((_a = cluster_1.default.worker) === null || _a === void 0 ? void 0 : _a.id) });
@@ -76,7 +75,7 @@ function start() {
         });
     }); });
     app.listen(4000, function () {
-        console.log("Server started with worker ".concat(process.pid));
+        // console.log(`Server started with worker ${process.pid}`);
     });
 }
 exports.start = start;

@@ -7,18 +7,21 @@ const aggregatorRegistry = new AggregatorRegistry();
 const app: Application = express();
 const port = 9000;
 
-// import { cpus } from 'os';
-// console.log(cpus().length);
+
+const fork = (env: {[key: string]: string | number | null}) => {
+    cluster.fork(env).on('exit', () => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        fork(env)
+    });
+}
 
 if (!cluster.isWorker) {
-    cluster.fork();
-    cluster.fork();
 
-    cluster.on('exit', (worker) => {
-        console.log(`worker ${worker.process.pid} died`);
-        cluster.fork();
-    });
     
+    for (let i = 0; i < 3; i++) {
+        fork({ index: i})
+    }
+
     app.get('/metrics', async (req: Request, res: Response) => {
         try {
             const metrics = await aggregatorRegistry.clusterMetrics();
@@ -29,12 +32,9 @@ if (!cluster.isWorker) {
             res.send((err as {message: string}).message);
         }
     });
-
     app.listen(port, () =>{
         console.log(`Server running in http://localhost:${port}`)
     });
-
-
 } else {
     server.start();
 }

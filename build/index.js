@@ -65,15 +65,16 @@ var server = __importStar(require("./worker"));
 var aggregatorRegistry = new prom_client_1.AggregatorRegistry();
 var app = (0, express_1.default)();
 var port = 9000;
-// import { cpus } from 'os';
-// console.log(cpus().length);
-if (!cluster_1.default.isWorker) {
-    cluster_1.default.fork();
-    cluster_1.default.fork();
-    cluster_1.default.on('exit', function (worker) {
-        console.log("worker ".concat(worker.process.pid, " died"));
-        cluster_1.default.fork();
+var fork = function (env) {
+    cluster_1.default.fork(env).on('exit', function () {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        fork(env);
     });
+};
+if (!cluster_1.default.isWorker) {
+    for (var i = 0; i < 3; i++) {
+        fork({ index: i });
+    }
     app.get('/metrics', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
         var metrics, err_1;
         return __generator(this, function (_a) {
@@ -102,13 +103,4 @@ if (!cluster_1.default.isWorker) {
 else {
     server.start();
 }
-// // Boot express
-// const app: Application = express();
-// const port = 5000;
-// // Application routing
-// app.use('/', (req: Request, res: Response ) => {
-//     res.status(200).send({data: 'Hello from Ornio AS'});
-// });
-// // Start server
-// app.listen(port, () => console.log(`Server is listening on port ${port}!`));
 //# sourceMappingURL=index.js.map
