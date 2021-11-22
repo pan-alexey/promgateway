@@ -73,7 +73,7 @@ var fork = function (env) {
 };
 if (!cluster_1.default.isWorker) {
     for (var i = 0; i < 3; i++) {
-        fork({ index: i });
+        fork({ PORT: 4000 + i, WORKER: "worker_".concat(i) });
     }
     app.get('/metrics', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
         var metrics, err_1;

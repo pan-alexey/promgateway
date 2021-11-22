@@ -1,24 +1,20 @@
 import express, { Request, Response } from 'express';
-import cluster from 'cluster';
 import { Counter, register } from 'prom-client';
 
 export function start(): void {
-  console.log(process.env.index);
-
-  setTimeout(()=>{
-    throw new Error();
-  }, 10000);
+  const PORT = process.env.PORT;
+  const WORKER = process.env.WORKER;
 
   const counter = new Counter({
     name: 'test_counter',
     help: 'Example of a counter',
-    labelNames: ['code'],
+    labelNames: ['worker'],
   });
 
   const app = express();
 
   app.get('/', (req: Request, res: Response): void => {
-    counter.inc({ code: `worker_${cluster.worker?.id}` });
+    counter.inc({ worker: WORKER });
     res.end('Done!');
   });
 
@@ -27,7 +23,7 @@ export function start(): void {
     res.end(await register.getSingleMetricAsString('test_counter'));
   });
 
-  app.listen(4000, () => {
-    // console.log(`Server started with worker ${process.pid}`);
+  app.listen(PORT, () => {
+    console.log(`PROCESS: [${process.pid}]. Server started with worker: http://localhost:${PORT} `);
   });
 }

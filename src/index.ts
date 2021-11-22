@@ -7,19 +7,16 @@ const aggregatorRegistry = new AggregatorRegistry();
 const app: Application = express();
 const port = 9000;
 
-
 const fork = (env: {[key: string]: string | number | null}) => {
     cluster.fork(env).on('exit', () => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        fork(env)
+        fork(env);
     });
 }
 
 if (!cluster.isWorker) {
-
-    
     for (let i = 0; i < 3; i++) {
-        fork({ index: i})
+        fork({ PORT: 4000 + i, WORKER: `worker_${i}`});
     }
 
     app.get('/metrics', async (req: Request, res: Response) => {

@@ -41,23 +41,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.start = void 0;
 var express_1 = __importDefault(require("express"));
-var cluster_1 = __importDefault(require("cluster"));
 var prom_client_1 = require("prom-client");
 function start() {
     var _this = this;
-    console.log(process.env.index);
-    setTimeout(function () {
-        throw new Error();
-    }, 10000);
+    var PORT = process.env.PORT;
+    var WORKER = process.env.WORKER;
     var counter = new prom_client_1.Counter({
         name: 'test_counter',
         help: 'Example of a counter',
-        labelNames: ['code'],
+        labelNames: ['worker'],
     });
     var app = (0, express_1.default)();
     app.get('/', function (req, res) {
-        var _a;
-        counter.inc({ code: "worker_".concat((_a = cluster_1.default.worker) === null || _a === void 0 ? void 0 : _a.id) });
+        counter.inc({ worker: WORKER });
         res.end('Done!');
     });
     app.get('/metrics', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
@@ -74,8 +70,8 @@ function start() {
             }
         });
     }); });
-    app.listen(4000, function () {
-        // console.log(`Server started with worker ${process.pid}`);
+    app.listen(PORT, function () {
+        console.log("PROCESS: [".concat(process.pid, "]. Server started with worker: http://localhost:").concat(PORT, " "));
     });
 }
 exports.start = start;
